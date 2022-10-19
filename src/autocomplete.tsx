@@ -16,7 +16,8 @@ import {
   titleAttribute,
 } from './constants';
 import {
-  bestHitTemplate,
+
+  // bestHitTemplate,
   headerTemplate,
   instantsearchTemplate,
   NoResultsTemplate,
@@ -83,40 +84,55 @@ export const startAutocomplete = (
 
   const sources = [
     {
-      sourceId: 'answers',
-      getItems({ setContext, state }) {
-        setContext({
-          ...state.context,
-          topHit: answersRef.current[0] ? answersRef.current[0].objectID : '',
+      sourceId: 'instantsearch_helpcenter',
+      getItems({ query, state }) {
+        const url = state.context.answerUrl as string;
+        const id = url ? url.split('/').pop() : '';
+
+        return getAlgoliaResults({
+          searchClient: SOURCES.find(
+            (source) => source.sourceId === 'help center'
+          ).client,
+          queries: [
+            {
+              indexName: SOURCES.find(
+                (source) => source.sourceId === 'help center'
+              ).indexName,
+              query,
+              params: {
+                hitsPerPage: 4,
+                distinct: true,
+                filters: id ? `NOT objectID:${id}` : '',
+              },
+            },
+          ],
+          transformResponse({ hits }) {
+            return hits[0].map((hit) => ({
+              ...hit,
+
+              url: hit.locale ? `/${hit.locale.locale}/articles/${hit.id}` : '',
+            }));
+          },
         });
-        return answersRef.current;
       },
       getItemUrl({ item }) {
-        if (item) {
-          return `${BASE_URLS[item.sourceId]}${
-            item.url
-          }#:~:text=${encodeURIComponent(
-            parse(item._answer.extract, 'mark').innerText
-          )}`;
-        }
-        return '';
+        return `${BASE_URLS['help center']}${item.url}`;
       },
       templates: {
         header() {
-          return headerTemplate('best answer');
+          return headerTemplate('help center');
         },
         item({ item, components }) {
-          return bestHitTemplate({
+          return instantsearchTemplate<Hit<ZendeskHit> & { url: string }>({
             item,
-            titleAttribute: titleAttribute(item),
-            contentAttribute: contentAttribute(item),
             components,
+            highlightAttr: 'title',
+            snippetAttr: 'body_safe',
+            sourceId: 'help center',
           });
         },
       },
-    } as AutocompleteSource<
-      HitWithAnswer<FederatedHits> & { sourceId: SourceId }
-    >,
+    } as AutocompleteSource<Hit<ZendeskHit> & { url: string }>,
     {
       sourceId: 'instantsearch_doc',
       getItems({ query, state }) {
@@ -131,7 +147,7 @@ export const startAutocomplete = (
               ).indexName,
               query,
               params: {
-                hitsPerPage: 2,
+                hitsPerPage: 4,
                 distinct: true,
                 filters: state.context.answerUrl
                   ? `NOT url:${state.context.answerUrl}`
@@ -160,55 +176,6 @@ export const startAutocomplete = (
       },
     } as AutocompleteSource<Hit<DocHit>>,
     {
-      sourceId: 'instantsearch_helpcenter',
-      getItems({ query, state }) {
-        const url = state.context.answerUrl as string;
-        const id = url ? url.split('/').pop() : '';
-
-        return getAlgoliaResults({
-          searchClient: SOURCES.find(
-            (source) => source.sourceId === 'help center'
-          ).client,
-          queries: [
-            {
-              indexName: SOURCES.find(
-                (source) => source.sourceId === 'help center'
-              ).indexName,
-              query,
-              params: {
-                hitsPerPage: 2,
-                distinct: true,
-                filters: id ? `NOT objectID:${id}` : '',
-              },
-            },
-          ],
-          transformResponse({ hits }) {
-            return hits[0].map((hit) => ({
-              ...hit,
-              url: hit.locale ? `/${hit.locale.locale}/articles/${hit.id}` : '',
-            }));
-          },
-        });
-      },
-      getItemUrl({ item }) {
-        return `${BASE_URLS['help center']}${item.url}`;
-      },
-      templates: {
-        header() {
-          return headerTemplate('help center');
-        },
-        item({ item, components }) {
-          return instantsearchTemplate<Hit<ZendeskHit> & { url: string }>({
-            item,
-            components,
-            highlightAttr: 'title',
-            snippetAttr: 'body_safe',
-            sourceId: 'help center',
-          });
-        },
-      },
-    } as AutocompleteSource<Hit<ZendeskHit> & { url: string }>,
-    {
       sourceId: 'instantsearch_discourse',
       getItems({ query, state }) {
         return getAlgoliaResults({
@@ -222,7 +189,7 @@ export const startAutocomplete = (
               ).indexName,
               query,
               params: {
-                hitsPerPage: 2,
+                hitsPerPage: 4,
                 distinct: true,
                 filters: state.context.answerUrl
                   ? `NOT url:${state.context.answerUrl} AND NOT topic.id:36` // topic 36 is "welcome please introduce yourself"
@@ -250,6 +217,9 @@ export const startAutocomplete = (
         },
       },
     } as AutocompleteSource<Hit<DiscourseHit>>,
+
+
+
     {
       sourceId: 'instantsearch_academy',
       getItems({ query, state }) {
@@ -262,7 +232,7 @@ export const startAutocomplete = (
                 .indexName,
               query,
               params: {
-                hitsPerPage: 2,
+                hitsPerPage: 4,
                 distinct: true,
                 facetFilters: [['type:guide', 'type:resource']],
                 filters: state.context.topHit

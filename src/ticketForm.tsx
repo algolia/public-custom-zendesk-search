@@ -15,6 +15,67 @@ import type { FederatedHits, HitWithAnswer, SourceId } from './types';
 import type { GroupedArrayObject } from './utils';
 import { capitalizeFirst, getSortedHits, groupBy } from './utils';
 
+function get_ss(content, content_attr, hit){
+  if (content){
+    try {
+        var new_content = hit._highlightResult;
+        var splitSet = content_attr.split(".");
+        if (splitSet.length > 1){
+          for (var i in splitSet){
+            new_content = new_content[splitSet[i]];
+          }
+        }
+        else{
+          new_content = new_content[content_attr];
+
+        }
+        content = new_content.value;
+
+    }
+    catch{
+
+      if (content.length){
+
+        return content.substring(0, 300);
+      }
+    }
+
+    }
+  try{
+    if (content.length){
+
+      return content.substring(0, 300);
+    }
+  }
+  catch{
+    return "";
+  }
+}
+function get_title(title, title_attribute, hit){
+  if (title){
+    try {
+        var new_title = hit._highlightResult;
+        var splitSet = title_attribute.split(".");
+        if (splitSet.length > 1){
+          for (var i in splitSet){
+            new_title = new_title[splitSet[i]];
+          }
+        }
+        else{
+          new_title = new_title[title_attribute];
+
+        }
+        title = new_title.value;
+        return title;
+    }
+    catch{
+
+        title = capitalizeFirst(title)
+        return title;
+    }
+
+  }
+}
 const AnswerHitWithTitle = ({
   hit: answerHit,
   showExtract,
@@ -47,9 +108,9 @@ const AnswerHitWithTitle = ({
       <h4 className={stl`font-bold text-lg text-grey-900`}
       dangerouslySetInnerHTML={{
         __html: `${
-          answerHit._answer.extractAttribute === "title" && (answerHit._answer.score>190)
-            ? answerHit._answer.extract
-            : capitalizeFirst(title)
+
+          get_title(title, formattedTitleAttribute, answerHit)
+
         }`,
       }}>
       </h4>
@@ -58,9 +119,7 @@ const AnswerHitWithTitle = ({
           className={stl`text-grey-900`}
           dangerouslySetInnerHTML={{
             __html: `...${
-              answerHit._answer.extractAttribute !== "title" && (answerHit._answer.score>190)
-                ? answerHit._answer.extract
-                : content
+              get_ss(content, formattedConAttribute, answerHit)
             }...`,
           }}
         />
@@ -111,9 +170,10 @@ export const TicketFormApp = (): JSX.Element => {
   return (
     <Fragment>
       <input
+        type="search"
+        name="request[subject]"
         data-testid="input-element"
         id={REQUEST_INPUT_SELECTOR.replace('#', '')}
-        type="search"
         className={stl`mb-4`}
         onInput={onInput}
       />

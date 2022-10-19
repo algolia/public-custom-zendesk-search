@@ -1,4 +1,4 @@
-import type { FindAnswersOptions, SearchOptions } from '@algolia/client-search';
+import type { SearchOptions } from '@algolia/client-search';
 import type { SearchIndex } from 'algoliasearch/lite';
 
 import type { FederatedHits, HitWithAnswer, SourceId } from './types';
@@ -8,9 +8,7 @@ interface FindAnswersParams {
   query: string;
   lang?: string;
   searchParams?: SearchOptions;
-  answerParams?: FindAnswersOptions & {
-    EXPERIMENTAL_illuminate?: number;
-  };
+
   sourceId: SourceId;
 }
 
@@ -19,23 +17,20 @@ export const customFindAnswers = ({
   query,
   lang = 'en',
   searchParams,
-  answerParams,
+
   sourceId,
 }: FindAnswersParams): Promise<
   HitWithAnswer<FederatedHits> & { sourceId: SourceId }
 > =>
   index
-    .findAnswers<FederatedHits>(query, [lang], {
-      threshold: 90,
-      nbHits: 1,
-      // EXPERIMENTAL_illuminate: 1,
-      params: {
-        ...searchParams,
+    .search<FederatedHits>(query, {
+        hitsPerPage: 4,
+        page: 0,
         optionalWords: query,
         highlightPreTag: '<mark>',
        highlightPostTag: '</mark>',
-      },
-      ...answerParams,
+
+
     })
     .then(({ hits }) =>
       hits.map((hit) => ({
