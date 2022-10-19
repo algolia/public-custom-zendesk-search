@@ -1,12 +1,14 @@
 <div align="center">
     <h1><strong>Algolia's Help Center Search</strong></h1>
-    
+
 [![Version](https://img.shields.io/npm/v/@algolia/algolia-custom-helpcenter-search.svg?style=flat-square)](https://www.npmjs.com/package/@algolia/autocomplete-js)
 </div>
 
 # NOTE FOR PUBLIC RELEASE
 
-This is a public copy of the custom zendesk search for Algolia. Please note that as of this now, it includes use Algolia Answers, which is a beta release you may not have access to. You can edit the code to call the search endpoint instead. This public fork is not **currently** a supported integration.
+This is a public copy of the custom zendesk search for Algolia. It previously used Algolia answers, but now uses the search endpoint instead-- some naming conventions use "answers" however.
+
+**This public fork is not currently a supported integration**. We will not be providing support for implementation of this public repository.
 
 
 ## What is this
@@ -89,12 +91,10 @@ npm run dev
 
 You can find everything related to the **autocomplete** search in `src/autocomplete.tsx`. We are using Algolia's [autocomplete library](https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-js/autocomplete/) to develop our autocomplete and are leveraging some styles from [DocSearch](https://github.com/algolia/DocSearch).
 
-You can find everything related to the **ticket form** input search in `src/ticketForm.tsx`. It's basically a mini app written using `preact` and using some components from Algolia [Satellite](https://github.com/algolia/satellite).
+You can find everything related to the **ticket form** input search in `src/ticketForm.tsx`. It's basically a mini app written using `preact`.
 
 You can find the **config** variables in `src/constants.ts`. See [configuration](#configuration).
 
 Don't forget to update the tests in `src/__tests__`if needed. `Jest` and [`Testing Library`](https://testing-library.com/docs/) are used for testing.
 
 <br>
-
-
