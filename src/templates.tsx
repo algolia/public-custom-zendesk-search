@@ -166,11 +166,7 @@ export const instantsearchTemplate = <T extends { url: string }>({
       href={`${BASE_URLS[sourceId]}${item.url}`}
       className={stl`p-4 no-underline hover:no-underline flex justify-between items-center`}
     >
-      {/* <span
-                class={stl`text-grey-500 uppercase font-sans font-bold text-base block mb-1`}
-            >
-                Documentation
-            </span> */}
+  
       <div style={{ width: '95%' }}>
         <h4
           className={`${stl`text-grey-900 text-md font-bold mb-1`} DocSearch-Hit-title`}
@@ -278,19 +274,6 @@ export const NoResultsTemplate = ({
     <p className="DocSearch-Title">
       No results for &quot;<strong>{query}</strong>&quot;
     </p>
-    {/* <div class='DocSearch-NoResults-Prefill-List'>
-            <p class='DocSearch-Help'>Try searching for: </p>
-            <ul>
-                <li>
-                    <button class='DocSearch-Prefill'>Guide &amp; APIs</button>
-                </li>
-                <li>
-                    <button class='DocSearch-Prefill'>Plugins</button>
-                </li>
-                <li>
-                    <button class='DocSearch-Prefill'>Config</button>
-                </li>
-            </ul>
-        </div> */}
+
   </div>
 );

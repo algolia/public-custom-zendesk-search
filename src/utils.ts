@@ -11,7 +11,7 @@ export const getContainerAndButton = (
     document.querySelectorAll(inputSelector);
   if (allInputs.length === 0) {
     throw new Error(
-      `Couldn't find any input matching inputSelector '${inputSelector}'.`
+      `Couldn't find input matching inputSelector '${inputSelector}'.`
     );
   }
   if (allInputs.length > 1) {
@@ -85,17 +85,14 @@ export const getSortedHits = async (
   } = {}
 ): Promise<{
   hits: Array<HitWithAnswer<FederatedHits> & { sourceId: SourceId }>;
-  topHit: string;
+
 }> => {
   const hits = await Promise.all(
     SOURCES.map((source) =>
       customFindAnswers({
         query,
         index: source.client.initIndex(source.indexName),
-        answerParams: {
-          ...source.answerParams,
-          ...genericAnswerParams,
-        },
+
         sourceId: source.sourceId,
         searchParams: source.searchParams,
       })
@@ -107,7 +104,7 @@ export const getSortedHits = async (
   function fixhits(hitset){
     return hitset.map(function(hit){
       if (hit.sourceId=="community"){
-        hit._answer.score=hit._answer.score/2;
+
         return hit;
       }
       return hit;
@@ -117,13 +114,9 @@ export const getSortedHits = async (
   const flattenHits = fixedHits.flat();
 
   if (flattenHits.length) {
-    const sortedHits = flattenHits.sort(
-      (a, b) => b._answer.score - a._answer.score
-    );
-    const topHitID = sortedHits[0].objectID;
-    return { hits: sortedHits, topHit: topHitID };
+    return { hits: flattenHits };
   }
-  return { hits: [], topHit: '' };
+  return { hits: [] };
 };
 
 export const parse = (html: string, selector: string): HTMLElement => {

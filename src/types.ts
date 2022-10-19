@@ -127,7 +127,6 @@ export interface Source {
   sourceId: SourceId;
   indexName: string;
   client: SearchClient;
-  answerParams?: FindAnswersOptions;
   searchParams?: SearchOptions;
   searchUrl: string;
 }
